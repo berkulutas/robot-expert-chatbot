@@ -8,3 +8,6 @@ sys.path.insert(0, ROOT_DIR)
 
 if __name__ == "__main__":
     pytest.main(["-v", "tests"])
+
+# To run the tests simply execute this script:
+# python tests/run_tests.py
