@@ -5,4 +5,4 @@ while True:
     if question.lower() == 'exit':
         break
     response, agent = orchestrator(question)
-    print(f"\n🤖 {agent} Agent:\n{response}")
+    print(f"\n🤖 {agent}:\n{response}")
