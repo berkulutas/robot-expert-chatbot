@@ -3,53 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Robot Chat</title>
+  <title>Robot Expert</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden; /* ✅ Block vertical scrolling */
       font-family: system-ui, sans-serif;
-      -webkit-overflow-scrolling: touch;
+      height: 100%;
+      background-color: #0b0b0b;
+    }
+    :root {
+      --vh: 100%;
+    }
+    .app-container {
+      height: calc(var(--vh, 1vh) * 100);
     }
   </style>
+  <script>
+    function setVh() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+    window.addEventListener('load', setVh);
+  </script>
 </head>
-<body class="bg-black text-white">
+<body class="text-white">
+  <div class="app-container flex items-center justify-center px-4">
+    <div class="w-full max-w-2xl bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl flex flex-col overflow-hidden">
+      <header class="text-lg sm:text-xl font-semibold text-left px-6 py-4 border-b border-neutral-700 bg-neutral-900">
+        🤖 <span class="align-middle">Robot Expert</span>
+      </header>
 
-  <div class="flex flex-col h-screen max-w-screen-md mx-auto bg-neutral-900 border-x border-neutral-700">
+      <main id="chat-box" class="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-neutral-950">
+        <!-- Messages will be injected here -->
+      </main>
 
-    <header class="text-xl sm:text-2xl font-semibold text-center py-4 border-b border-neutral-700">
-      🤖 Robot Expert
-    </header>
-
-    <main id="chat-box" class="flex-1 overflow-y-auto p-3 space-y-3 bg-neutral-950 scroll-smooth">
-      <!-- Messages will go here -->
-    </main>
-
-    <footer class="flex gap-2 p-3 border-t border-neutral-700 bg-neutral-900">
-      <input
-        id="question"
-        type="text"
-        placeholder="Type your message..."
-        class="flex-1 px-3 py-2 rounded-lg bg-neutral-800 text-sm text-white placeholder-gray-400 border border-neutral-600 focus:outline-none"
-      />
-      <button
-        onclick="sendMessage()"
-        class="px-4 py-2 bg-blue-600 rounded-lg text-sm hover:bg-blue-700 whitespace-nowrap"
-      >
-        Send
-      </button>
-    </footer>
-
+      <footer class="flex gap-2 p-4 border-t border-neutral-800 bg-neutral-900">
+        <input
+          id="question"
+          type="text"
+          placeholder="Ask something about FANUC or KUKA robots..."
+          class="flex-1 px-4 py-2 rounded bg-neutral-800 text-sm text-white placeholder-gray-400 border border-neutral-600 focus:outline-none"
+        />
+        <button
+          onclick="sendMessage()"
+          class="px-4 py-2 bg-blue-600 rounded text-sm hover:bg-blue-700 whitespace-nowrap"
+        >
+          Send
+        </button>
+      </footer>
+    </div>
   </div>
 
   <script>
     function appendMessage(role, text) {
       const message = document.createElement("div");
       message.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-      message.innerHTML = `<div class="rounded-xl px-4 py-2 max-w-[75%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
+      message.innerHTML = `<div class="rounded-lg px-4 py-2 max-w-[80%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
       const box = document.getElementById("chat-box");
       box.appendChild(message);
       box.scrollTop = box.scrollHeight;
@@ -84,7 +97,6 @@
       }
     }
 
-    // Send on Enter
     document.getElementById("question").addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -92,6 +104,5 @@
       }
     });
   </script>
-
 </body>
 </html>
