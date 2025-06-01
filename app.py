@@ -1,0 +1,21 @@
+from flask import Flask, request, jsonify
+from agents import orchestrator
+
+app = Flask(__name__)
+
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    question = data.get("question", "").strip()
+
+    if not question:
+        return jsonify({"error": "Missing question field."}), 400
+
+    response, agent = orchestrator(question)
+
+    return jsonify({"response": response, "agent": agent})
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080, debug=True)
