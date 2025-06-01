@@ -1,7 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from agents import orchestrator
 
 app = Flask(__name__)
+
+
+@app.route("/")
+def index():
+    return render_template("chat.html")
 
 
 @app.route("/chat", methods=["POST"])
