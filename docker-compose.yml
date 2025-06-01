@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  chatbot:
+    build: .
+    container_name: robot_chatbot
+    ports:
+      - "5001:5000"  # host:container
+    restart: always
