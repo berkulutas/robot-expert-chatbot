@@ -6,7 +6,7 @@ from langchain.schema import HumanMessage, SystemMessage
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import (
     CharacterTextSplitter,
-    RecursiveCharacterTextSplitter,
+    RecursiveCharacterTextSplitter, # TODO experiment
 )
 
 from langchain_openai.embeddings import OpenAIEmbeddings
@@ -79,7 +79,7 @@ prompt_template = ChatPromptTemplate.from_messages(
 
 
 def kuka_agent(question: str):
-    retriever = kuka_db.as_retriever(search_kwargs={"k": 3})  # More context if needed
+    retriever = kuka_db.as_retriever(search_kwargs={"k": 3})
 
     qa = RetrievalQA.from_chain_type(
         llm=llm,
@@ -101,7 +101,7 @@ def kuka_agent(question: str):
 def fanuc_agent(question: str):
     retriever = fanuc_db.as_retriever(
         search_kwargs={"k": 3}
-    )  # Match KUKA agent's context depth
+    )
 
     qa = RetrievalQA.from_chain_type(
         llm=llm,
