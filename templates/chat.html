@@ -7,28 +7,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, sans-serif; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      height: 100%;
+    }
   </style>
 </head>
-<body class="bg-black text-white flex items-center justify-center min-h-screen p-2 sm:p-4">
+<body class="bg-black text-white flex items-center justify-center min-h-screen">
 
-  <div class="w-full max-w-md sm:max-w-3xl bg-neutral-900 border border-neutral-700 rounded-xl p-3 sm:p-4 shadow-md flex flex-col h-[90vh] max-h-[700px]">
+  <div class="w-full max-w-screen-md mx-auto bg-neutral-900 border border-neutral-700 rounded-2xl shadow-xl flex flex-col h-[90vh] sm:h-[85vh]">
 
-    <h1 class="text-xl sm:text-2xl text-center font-semibold mb-4 sm:mb-6">🤖 Robot Expert</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-center py-4 border-b border-neutral-700">
+      🤖 Robot Expert
+    </h1>
 
-    <div id="chat-box" class="flex flex-col gap-2 overflow-y-auto flex-1 p-2 border border-neutral-800 rounded bg-neutral-950 scroll-smooth">
+    <div id="chat-box" class="flex-1 p-3 overflow-y-auto space-y-3 bg-neutral-950">
       <!-- Messages will be injected here -->
     </div>
 
-    <div class="flex gap-2 mt-3">
+    <div class="flex gap-2 p-3 border-t border-neutral-700 bg-neutral-900">
       <input
         id="question"
         type="text"
         placeholder="Type your message..."
-        class="flex-1 px-3 py-2 rounded bg-neutral-800 text-sm text-white placeholder-gray-400 border border-neutral-600 focus:outline-none"
+        class="flex-1 px-3 py-2 rounded-lg bg-neutral-800 text-sm text-white placeholder-gray-400 border border-neutral-600 focus:outline-none"
       />
       <button
         onclick="sendMessage()"
-        class="px-4 py-2 bg-blue-600 rounded text-sm hover:bg-blue-700 whitespace-nowrap"
+        class="px-4 py-2 bg-blue-600 rounded-lg text-sm hover:bg-blue-700 whitespace-nowrap"
       >
         Send
       </button>
@@ -40,7 +48,7 @@
     function appendMessage(role, text) {
       const message = document.createElement("div");
       message.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-      message.innerHTML = `<div class="rounded-lg px-4 py-2 max-w-[75%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
+      message.innerHTML = `<div class="rounded-xl px-4 py-2 max-w-[75%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
       const box = document.getElementById("chat-box");
       box.appendChild(message);
       box.scrollTop = box.scrollHeight;
@@ -75,10 +83,10 @@
       }
     }
 
-    // 🔑 Add "Enter" key support
+    // Enter to send
     document.getElementById("question").addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
-        e.preventDefault();  // Prevent form submission if needed
+        e.preventDefault();
         sendMessage();
       }
     });
