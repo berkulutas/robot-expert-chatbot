@@ -95,7 +95,7 @@ def kuka_agent(question: str):
     if not result.strip() or "I don't have" in result.lower():
         return "I don’t have that information in my documentation.", "KUKA"
 
-    return result.strip(), "KUKA"
+    return result.strip()
 
 
 def fanuc_agent(question: str):
@@ -117,7 +117,7 @@ def fanuc_agent(question: str):
     if not result.strip() or "I don’t have" in result.lower():
         return "I don’t have that information in my documentation.", "FANUC"
 
-    return result.strip(), "FANUC"
+    return result.strip()
 
 
 def route_with_llm(question: str) -> str:
@@ -140,9 +140,9 @@ def orchestrator(question: str):
     brand = route_with_llm(question)
 
     if brand == "KUKA":
-        return kuka_agent(question), "KUKA Agent"
+        return kuka_agent(question), "KUKA"
     elif brand == "FANUC":
-        return fanuc_agent(question), "FANUC Agent"
+        return fanuc_agent(question), "FANUC"
     else:
         return (
             f"Sorry, I only support KUKA and FANUC robots. You asked about: {brand}",
