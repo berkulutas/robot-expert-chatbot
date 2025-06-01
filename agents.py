@@ -13,6 +13,7 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai.chat_models import AzureChatOpenAI
 
 from langchain.chains import RetrievalQA
+from langchain.prompts import ChatPromptTemplate
 
 
 # Load environment variables from .env file
@@ -64,23 +65,56 @@ fanuc_db = load_or_create_vectorstore(
 )
 
 
-def kuka_agent(question: str):
-    retriever = kuka_db.as_retriever(search_kwargs={"k": 1})
-    qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
-    result = qa.invoke({"query": question})["result"]
+prompt_template = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a helpful assistant for robots. "
+            "Only answer using the provided context. Be concise. "
+            "If the answer is not in the context, say: 'I don’t have that information in my documentation.'",
+        ),
+        ("user", "Question: {question}\n\nContext:\n{context}"),
+    ]
+)
 
-    if not result.strip() or "I don't know" in result or "not sure" in result.lower():
+
+def kuka_agent(question: str):
+    retriever = kuka_db.as_retriever(search_kwargs={"k": 3})  # More context if needed
+
+    qa = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": prompt_template},
+        return_source_documents=False,
+        input_key="question",
+    )
+
+    result = qa.invoke({"question": question, "brand": "KUKA"})["result"]
+
+    if not result.strip() or "I don't have" in result.lower():
         return "I don’t have that information in my documentation.", "KUKA"
 
     return result.strip(), "KUKA"
 
 
 def fanuc_agent(question: str):
-    retriever = fanuc_db.as_retriever(search_kwargs={"k": 1})
-    qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
-    result = qa.invoke({"query": question})["result"]
+    retriever = fanuc_db.as_retriever(
+        search_kwargs={"k": 3}
+    )  # Match KUKA agent's context depth
 
-    if not result.strip() or "I don't know" in result or "not sure" in result.lower():
+    qa = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        chain_type="stuff",
+        chain_type_kwargs={"prompt": prompt_template},
+        return_source_documents=False,
+        input_key="question",
+    )
+
+    result = qa.invoke({"question": question, "brand": "FANUC"})["result"]
+
+    if not result.strip() or "I don’t have" in result.lower():
         return "I don’t have that information in my documentation.", "FANUC"
 
     return result.strip(), "FANUC"
@@ -98,7 +132,7 @@ def route_with_llm(question: str) -> str:
 
     user_msg = HumanMessage(content=question)
 
-    response = llm([system_msg, user_msg])
+    response = llm.invoke([system_msg, user_msg])
     return response.content.strip().upper()
 
 
