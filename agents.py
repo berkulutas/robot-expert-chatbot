@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 
 from langchain_community.vectorstores import FAISS
+from langchain.schema import HumanMessage, SystemMessage
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import (
     CharacterTextSplitter,
@@ -33,7 +34,7 @@ llm = AzureChatOpenAI(
 )
 
 # How to split pdf into chunks
-text_splitter = RecursiveCharacterTextSplitter(
+text_splitter = CharacterTextSplitter(
     chunk_size=500,  # TODO experiment with chunk size
     chunk_overlap=50,
 )
@@ -85,25 +86,31 @@ def fanuc_agent(question: str):
     return result.strip(), "FANUC"
 
 
-def orchestrator(question: str):
-    q = question.lower()
-
-    if "kuka" in q or "kr 10 r1100" in q:
-        return kuka_agent(question)
-
-    elif "fanuc" in q or "lr-mate" in q or "200id" in q:
-        return fanuc_agent(question)
-
-    elif any(
-        brand in q for brand in ["abb", "ur", "yaskawa", "staubli", "kawasaki", "tm"]
-    ):
-        return (
-            "Sorry, I only respond to questions about KUKA and FANUC robots.",
-            "Orchestrator",
+def route_with_llm(question: str) -> str:
+    system_msg = SystemMessage(
+        content=(
+            "You are a router for an industrial robot assistant system.\n"
+            "Your job is to determine which robot brand the user is asking about.\n"
+            "Respond with only one of the following: KUKA, FANUC, ABB, UR, YASKAWA, OTHER.\n"
+            "Do not explain. Do not say anything else. Respond with a single brand name only."
         )
+    )
 
+    user_msg = HumanMessage(content=question)
+
+    response = llm([system_msg, user_msg])
+    return response.content.strip().upper()
+
+
+def orchestrator(question: str):
+    brand = route_with_llm(question)
+
+    if brand == "KUKA":
+        return kuka_agent(question), "KUKA Agent"
+    elif brand == "FANUC":
+        return fanuc_agent(question), "FANUC Agent"
     else:
         return (
-            "Sorry, I only respond to questions about KUKA and FANUC robots.",
+            f"Sorry, I only support KUKA and FANUC robots. You asked about: {brand}",
             "Orchestrator",
         )
