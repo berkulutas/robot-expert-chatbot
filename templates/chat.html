@@ -1,37 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Robot Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, sans-serif; }
   </style>
 </head>
-<body class="bg-black text-white flex flex-col items-center justify-center min-h-screen p-4">
+<body class="bg-black text-white flex items-center justify-center min-h-screen p-2 sm:p-4">
 
-  <div class="w-full max-w-3xl bg-neutral-900 border border-neutral-700 rounded-xl p-4 shadow-md">
-    <h1 class="text-2xl text-center font-semibold mb-6">🤖 Robot Expert</h1>
+  <div class="w-full max-w-md sm:max-w-3xl bg-neutral-900 border border-neutral-700 rounded-xl p-3 sm:p-4 shadow-md flex flex-col h-[90vh] max-h-[700px]">
 
-    <div id="chat-box" class="flex flex-col gap-3 overflow-y-auto max-h-96 p-2">
+    <h1 class="text-xl sm:text-2xl text-center font-semibold mb-4 sm:mb-6">🤖 Robot Expert</h1>
+
+    <div id="chat-box" class="flex flex-col gap-2 overflow-y-auto flex-1 p-2 border border-neutral-800 rounded bg-neutral-950 scroll-smooth">
       <!-- Messages will be injected here -->
     </div>
 
-    <div class="flex gap-2 mt-4">
-      <input id="question" type="text" placeholder="Type your message..." class="flex-1 px-3 py-2 rounded bg-neutral-800 text-sm text-white placeholder-gray-400 border border-neutral-600 focus:outline-none" />
-      <button onclick="sendMessage()" class="px-4 py-2 bg-blue-600 rounded text-sm hover:bg-blue-700">Send</button>
+    <div class="flex gap-2 mt-3">
+      <input
+        id="question"
+        type="text"
+        placeholder="Type your message..."
+        class="flex-1 px-3 py-2 rounded bg-neutral-800 text-sm text-white placeholder-gray-400 border border-neutral-600 focus:outline-none"
+      />
+      <button
+        onclick="sendMessage()"
+        class="px-4 py-2 bg-blue-600 rounded text-sm hover:bg-blue-700 whitespace-nowrap"
+      >
+        Send
+      </button>
     </div>
+
   </div>
 
   <script>
-    let msgCount = 0;
-
     function appendMessage(role, text) {
       const message = document.createElement("div");
       message.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-      message.innerHTML = `<div class="rounded-lg px-4 py-2 max-w-md text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
-      document.getElementById("chat-box").appendChild(message);
-      document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
+      message.innerHTML = `<div class="rounded-lg px-4 py-2 max-w-[75%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
+      const box = document.getElementById("chat-box");
+      box.appendChild(message);
+      box.scrollTop = box.scrollHeight;
     }
 
     function updateLastBotMessage(text) {
@@ -62,6 +74,14 @@
         updateLastBotMessage("Something went wrong.");
       }
     }
+
+    // 🔑 Add "Enter" key support
+    document.getElementById("question").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();  // Prevent form submission if needed
+        sendMessage();
+      }
+    });
   </script>
 
 </body>
