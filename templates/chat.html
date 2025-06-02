@@ -58,51 +58,61 @@
     </div>
   </div>
 
-  <script>
-    function appendMessage(role, text) {
-      const message = document.createElement("div");
-      message.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-      message.innerHTML = `<div class="rounded-lg px-4 py-2 max-w-[80%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
-      const box = document.getElementById("chat-box");
-      box.appendChild(message);
-      box.scrollTop = box.scrollHeight;
-    }
+    <script>
+      const history = [];
 
-    function updateLastBotMessage(text) {
-      const messages = document.querySelectorAll('#chat-box .justify-start');
-      if (messages.length > 0) {
-        messages[messages.length - 1].querySelector("div").textContent = text;
+      function appendMessage(role, text) {
+        const message = document.createElement("div");
+        message.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+        message.innerHTML = `<div class="rounded-lg px-4 py-2 max-w-[80%] text-sm ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-white'}">${text}</div>`;
+        const box = document.getElementById("chat-box");
+        box.appendChild(message);
+        box.scrollTop = box.scrollHeight;
       }
-    }
 
-    async function sendMessage() {
-      const input = document.getElementById("question");
-      const question = input.value.trim();
-      if (!question) return;
-
-      appendMessage("user", question);
-      input.value = "";
-      appendMessage("bot", "...");
-
-      try {
-        const res = await fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question })
-        });
-        const data = await res.json();
-        updateLastBotMessage(data.response);
-      } catch (err) {
-        updateLastBotMessage("Something went wrong.");
+      function updateLastBotMessage(text) {
+        const messages = document.querySelectorAll('#chat-box .justify-start');
+        if (messages.length > 0) {
+          messages[messages.length - 1].querySelector("div").textContent = text;
+        }
       }
-    }
 
-    document.getElementById("question").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendMessage();
+      async function sendMessage() {
+        const input = document.getElementById("question");
+        const question = input.value.trim();
+        if (!question) return;
+
+        appendMessage("user", question);
+        input.value = "";
+        appendMessage("bot", "...");
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question, history })
+          });
+
+          const data = await res.json();
+          updateLastBotMessage(data.response);
+
+          // ✅ Save this turn in the local JS memory
+          history.push({
+            user: question,
+            assistant: data.response
+          });
+
+        } catch (err) {
+          updateLastBotMessage("Something went wrong.");
+        }
       }
-    });
-  </script>
+
+      document.getElementById("question").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    </script>
 </body>
 </html>
