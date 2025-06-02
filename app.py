@@ -13,11 +13,12 @@ def index():
 def chat():
     data = request.get_json()
     question = data.get("question", "").strip()
+    history = data.get("history", [])
 
     if not question:
         return jsonify({"error": "Missing question field."}), 400
 
-    response, agent = orchestrator(question)
+    response, agent = orchestrator(question, history)
 
     return jsonify({"response": response, "agent": agent})
 
