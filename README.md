@@ -2,7 +2,7 @@
 
 **Your instant documentation assistant for industrial robots.**
 
-[!demo](docs/demo.png)
+![demo](docs/demo.png)
 
 *See the chatbot in action!*
 
