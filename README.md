@@ -1,110 +1,75 @@
-# Multi-Agent Robot Expert Chatbot
+# 🤖 Multi-Agent Robot Expert Chatbot
 
-## Project Description
+**Your instant documentation assistant for industrial robots.**
 
-This project is a simple multi-agent chatbot system built in Python with Flask.
-The chatbot can answer engineering questions about two industrial robot families by routing each question to a specialised agent:
-- KUKA Agent – expert on KUKA robots (e.g. KR AGILUS KR 10 R1100).
-- FANUC Agent – expert on FANUC robots (e.g. LR-Mate 200iD).
+[!demo](docs/demo.png)
 
-Both agents rely **only** on the official PDF manual for their model using a Retrieval-Augmented Generation (RAG) pipeline. Two short (4 pager) PDFs are shared for both Kuka and Fanuc expertise.
+*See the chatbot in action!*
 
-A central **Orchestrator** decides which agent should answer or returns a fallback message when the question is out of scope.
+## What is this?
 
-A complete unit-test suite must verify the chatbot’s behaviour.
+The **Multi-Agent Robot Expert Chatbot** is an AI-powered assistant that helps engineers and technicians get fast, reliable answers from official robot documentation—no need to search through manuals yourself!
 
-Key Features:
-- **KUKA Expert Agent**: Responds to questions that mention the KUKA robots (only within the information provided in the PDF document).
-- **FANUC Expert Agent**: Responds to questions that mention the FANUC robots (only within the information provided in the PDF document).
-- **Unknown-Robot Handling**: If the user asks about any other brand (ABB, UR, etc.) or the questions outside the scope of the PDF documents, the system replies for each case: “Sorry, I only respond to questions about KUKA and FANUC robots.” OR “Sorry, I do not have this information on Kuka (or Fanuc) in my knowledge base.”
-- **Out-of-Documentation Handling**: When a question is not answered in the uploaded PDF, the agent replies: “I don’t have that information in my documentation.”
-- **Optional Visual Responses (Bonus)**: If relevant, an agent may embed an image (e.g. a payload curve) encoded as base64. Pure-text answers are acceptable.
-- **Conversation History**: The chatbot keeps prior messages to provide context.
-- **Confidence Evaluation (Bonus)**: If the model is uncertain, it should ask the user for clarification or state its uncertainty.
-- **Bonus Feature**: Confidence Evaluation: Implement a mechanism to estimate answer confidence (second agent, entropy threshold, same agent but this is not ideal). If confidence is low, the system asks for clarification or suggests involving a human engineer.
+**Try it live:** [robot-expert.berkulutas.xyz](http://robot-expert.berkulutas.xyz/)
 
-## Requirements:
-- Python 3.9+
-- Flask
-- Any agent library (LangChain, AutoGen, CrewAI, …) or your own implementation (bonus points).
-- OpenAI Python SDK (API given below)
-- A vector database for RAG (FAISS, Chroma, Pinecone, Weaviate, pgvector, etc.).
-- Unit tests that cover routing logic, unknown-robot handling, out-of-documentation handling, and at least one PDF-based retrieval check. Use pytest.
+## What can it do?
 
-## API Access:
+- **Instant Answers from Manuals:**  
+  Ask technical questions about supported industrial robots and get clear, accurate answers—directly from the official documentation.
 
-The chatbot needs access to OpenAI models. Use the token below:
+- **Smart Agent Routing:**  
+  The chatbot automatically understands your question and sends it to the right expert agent for the robot family (currently KUKA and FANUC).
 
-API Key: 
+- **No Guesswork:**  
+  All answers are based strictly on the official PDF manuals, so you can trust the information.
 
-```
-AZURE_OPENAI_BASE_URL=[REDACTED]
-AZURE_OPENAI_API_KEY=[REDACTED]
-AZURE_OPENAI_MODEL_NAME=[REDACTED]
-AZURE_OPENAI_API_VERSION=[REDACTED]
-```
+- **Handles Out-of-Scope Questions:**  
+  If you ask about a robot brand that isn't supported yet, or something not in the documentation, the chatbot will let you know.
 
-Embedding model API (if needed):
+- **Keeps the Conversation Going:**  
+  Remembers your previous questions for a smooth, contextual chat.
 
-```
-model=[REDACTED]
-OPENAI_API_KEY=[REDACTED]
-```
+## Who is it for?
 
-If you encounter quota issues, please contact can.gorur@bopti.ai.
+- **Engineers & Technicians** who work with industrial robots and need quick answers from documentation
+- **Students** learning about robotics and automation
+- **Support teams** who need reliable, up-to-date robot info
 
-## Flask Web Application:
-- Endpoint: /chat
-- Request Method: POST
-- Input Format: JSON
+## Example Questions
 
-```json
-{"question": "What is the repeatability of the KR 10 R1100?"}
-```
+- *"What is the repeatability of the KR 10 R1100?"*  
+  → *"The KR 10 R1100 has a repeatability of ±0.02 mm."*
 
-- Output Format: JSON
+- *"Show me the maximum payload curve for the LR-Mate 200iD."*  
+  → *"Here is the maximum payload curve for the LR-Mate 200iD:"* (with image, if available)
 
-```json
-{"response": "The KR 10 R1100 has a repeatability of ±0.02 mm.", "agent": "KUKA"}
-```
+- *"What is the reach of the ABB IRB 120?"*  
+  → *"Sorry, I only respond to questions about KUKA and FANUC robots."*
 
+- *"Which gearbox is used inside the wrist of the KR 10 R1100?"*  
+  → *"I don't have that information in my documentation."*
 
-## Example Questions and Expected Responses:
-- KUKA Question:
-  - **Question**: "What is the repeatability of the KR 10 R1100?"
-  - **Expected Response**: The KUKA agent returns the numeric value taken from the manual.
+## How to Use
 
-- FANUC Question:
-  - **Question**: "Show me the maximum payload curve for the LR-Mate 200iD."
-  - **Expected Response**: The FANUC agent explains the curve; including an image is optional bonus.
+1. **Go to:** [robot-expert.berkulutas.xyz](http://robot-expert.berkulutas.xyz/)
+2. **Type your question** about a supported robot.
+3. **Get your answer** instantly, with references from the official manuals.
 
-- Unknown Robot Question:
-  - **Question**: "What is the reach of the ABB IRB 120?"
-  - **Expected Response**: The orchestrator replies that only KUKA and FANUC are supported.
-	
-- Out-of-Documentation Question:
-  - **Question**: "Which gearbox is used inside the wrist of the KR 10 R1100?" (not in the manual)
-  - **Expected Response**: The KUKA agent replies: “I don’t have that information in my documentation.”
+## How does it work?
 
-- Bonus Difficult Question (Confidence Evaluation):
-  - **Question**: "How should I configure the ProfiNet I/O mapping in TIA Portal when integrating the KR 10 R1100 with a Siemens S7-1500 and an external safety PLC?"
-  - **Expected Response**: Since this requires user-specific setup knowledge beyond the PDF, the agent should state uncertainty and ask for the user’s input, e.g. “That depends on your exact network topology and safety requirements. Could you share your current ProfiNet configuration or preferences?”
+- **AI Agents:** Specialized for each robot family, trained only on their official PDF manuals.
+- **Orchestrator:** Decides which agent should answer, or if the question is out of scope.
+- **Retrieval-Augmented Generation (RAG):** Ensures answers are always based on the actual documentation.
 
+## FAQ
 
-## Project Structure
+**Q: Can I ask about any robot?**  
+A: The chatbot is designed for all industrial robots, but currently supports KUKA and FANUC. More brands coming soon!
 
-Below is the structure of the project. You can email the result.
+**Q: Where do the answers come from?**  
+A: All answers are based on the official PDF manuals for each robot.
 
-```bash
-├── app.py                  # Main Flask app
-├── agents.py               # Orchestrator + agents
-├── requirements.txt        # Dependencies
-├── README.md               # This file
-├── docs/                   # PDF manuals
-└── tests/                  # Unit tests (pytest)
-# They can be in the same file
-    ├── test_routing.py
-    ├── test_unknown_robot.py
-    ├── test_out_of_doc.py
-    └── run_tests.py
-```
+**Q: Is my conversation private?**  
+A: Your questions are only used to provide answers and improve the service.
+
+*Built with ❤️ for engineers and technicians who want fast, reliable answers from robot documentation*
